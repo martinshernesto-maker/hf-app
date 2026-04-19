@@ -624,6 +624,70 @@ canvas{width:100%!important;}
 .today-ring-info { }
 .today-ring-pct { font-family:var(--font-mono); font-size:18px; font-weight:700; color:var(--success); line-height:1; }
 .today-ring-label { font-size:11px; color:var(--text2); margin-top:2px; }
+
+/* ===== SETTINGS ===== */
+.settings-section {
+  margin:0 20px 20px;
+  background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius);
+  overflow:hidden;
+}
+.settings-section-title {
+  padding:14px 16px 10px;
+  font-size:11px; font-weight:700; color:var(--text3);
+  letter-spacing:2px; text-transform:uppercase;
+  background:var(--gradient-card);
+  border-bottom:1px solid var(--border);
+}
+.settings-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; border-bottom:1px solid rgba(255,255,255,.04);
+  gap:12px;
+}
+.settings-row:last-child { border-bottom:none; }
+.settings-row-left { flex:1; min-width:0; }
+.settings-row-label { font-size:14px; font-weight:600; }
+.settings-row-sub { font-size:12px; color:var(--text2); margin-top:2px; }
+.settings-row-right { flex-shrink:0; }
+
+/* Day schedule row — has emoji + name + selector */
+.day-sched-row {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.04);
+}
+.day-sched-row:last-child { border-bottom:none; }
+.day-sched-dot {
+  width:10px; height:10px; border-radius:50%; flex-shrink:0;
+}
+.day-sched-name {
+  font-size:13px; font-weight:700; min-width:60px; flex-shrink:0;
+}
+.day-sched-select {
+  flex:1; padding:8px 12px; background:var(--bg3); border:1.5px solid var(--border);
+  border-radius:var(--radius-sm); color:var(--text); font-family:var(--font-body);
+  font-size:13px; outline:none; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center;
+  transition:border-color .2s;
+}
+.day-sched-select:focus { border-color:var(--accent); }
+.day-sched-select.rest-day { color:var(--text3); }
+
+/* Delete all data button */
+.btn-delete-all {
+  width:100%; padding:15px; margin-top:0;
+  background:linear-gradient(135deg,rgba(255,71,87,.2),rgba(255,71,87,.08));
+  border:1.5px solid rgba(255,71,87,.45); border-radius:var(--radius-sm);
+  color:var(--danger); font-family:var(--font-body); font-size:15px; font-weight:700;
+  cursor:pointer; transition:all .2s; letter-spacing:.5px;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+}
+.btn-delete-all:active { transform:scale(.97); background:rgba(255,71,87,.25); }
+
+/* Settings sub-section header */
+.settings-sub-header {
+  padding:6px 16px 10px;
+  font-size:10px; color:var(--text3); letter-spacing:1.5px; text-transform:uppercase;
+}
 </style>
 </head>
 <body>
@@ -727,6 +791,19 @@ canvas{width:100%!important;}
       </div>
     </div></div>
     <div class="screen-body" id="calendarBody"></div>
+  </div>
+  <!-- SETTINGS VIEW -->
+  <div id="settingsView" style="display:none;flex-direction:column;height:100%">
+    <div class="topbar"><div class="topbar-content">
+      <div class="topbar-brand">
+        <div class="topbar-title" id="settingsNavTitle">CONFIGURAÇÕES</div>
+        <div class="topbar-sub" id="settingsNavSub">Personalize seu app</div>
+      </div>
+      <div class="topbar-right">
+        <button class="lang-toggle" style="font-size:20px;border:none;background:transparent;padding:4px 8px" onclick="showNav('profile')">←</button>
+      </div>
+    </div></div>
+    <div class="screen-body" id="settingsBody"></div>
   </div>
   <nav class="bottom-nav">
     <button class="nav-item active" data-nav="home" onclick="showNav('home')"><span class="nav-icon">🏠</span><span class="nav-label" data-i18n="nav.home">Início</span></button>
@@ -833,6 +910,28 @@ const I18N = {
     'profile.fio_msg':'Tito te ama muito! Continue arrasando nos treinos! 💕',
     'profile.reset_confirm':'Resetar todos os treinos para o padrão? Suas personalizações serão perdidas.',
     'profile.reset_done':'Treinos resetados para o padrão',
+    'profile.settings':'⚙️ Configurações',
+    'settings.title':'CONFIGURAÇÕES','settings.sub':'Personalize seu app',
+    'settings.schedule_section':'Programação Semanal',
+    'settings.schedule_sub':'Defina o tipo de treino para cada dia da semana',
+    'settings.save_schedule':'SALVAR PROGRAMAÇÃO',
+    'settings.schedule_saved':'Programação salva! ✅',
+    'settings.data_section':'Gerenciamento de Dados',
+    'settings.delete_all':'🗑️ Apagar Todos os Dados',
+    'settings.delete_confirm':'ATENÇÃO! Isso irá apagar permanentemente todos os seus registros de peso, fotos, histórico de treinos, sessões HIIT e configurações. Esta ação não pode ser desfeita.\n\nTem certeza absoluta?',
+    'settings.delete_done':'Todos os dados foram apagados.',
+    'settings.reset_workouts':'🔄 Resetar Treinos para o Padrão',
+    'settings.lang_section':'Idioma',
+    'settings.workout_types':{
+      'none':'— Sem treino —',
+      'peito_tri':'💪 Peito + Tríceps','costas_bi':'🔙 Costas + Bíceps',
+      'cardio_core':'🏃 Cardio + Core','ombros_trap':'🎯 Ombros + Trapézio',
+      'pernas_glut':'🦵 Pernas + Glúteo','full_body':'🔥 Full Body',
+      'glut_post':'🍑 Glúteo + Posterior','cardio_abd':'🔥 Cardio + Abdômen',
+      'ombros_tri':'💜 Ombros + Tríceps','pernas_glut2':'🦵 Pernas + Glúteo 2',
+      'full_func':'🌟 Full Body Funcional','hiit_day':'⚡ Dia de HIIT',
+      'cardio_leve':'🚶 Cardio Leve','descanso':'😌 Descanso',
+    },
     'love.sub':'Cada dia, sempre ❤️','love.close':'💕 Começar o treino!',
     'photo.close':'Fechar',
     'toast.fill_fields':'Preencha todos os campos','toast.wrong_creds':'E-mail ou senha incorretos',
@@ -953,6 +1052,28 @@ const I18N = {
     'profile.fio_msg':'¡Tito te ama mucho! ¡Sigue arrasando en los entrenos! 💕',
     'profile.reset_confirm':'¿Restablecer todos los entrenos? Se perderán tus personalizaciones.',
     'profile.reset_done':'Entrenos restablecidos',
+    'profile.settings':'⚙️ Configuraciones',
+    'settings.title':'CONFIGURACIONES','settings.sub':'Personaliza tu app',
+    'settings.schedule_section':'Programación Semanal',
+    'settings.schedule_sub':'Define el tipo de entreno para cada día de la semana',
+    'settings.save_schedule':'GUARDAR PROGRAMACIÓN',
+    'settings.schedule_saved':'¡Programación guardada! ✅',
+    'settings.data_section':'Gestión de Datos',
+    'settings.delete_all':'🗑️ Borrar Todos los Datos',
+    'settings.delete_confirm':'¡ATENCIÓN! Esto borrará permanentemente todos tus registros de peso, fotos, historial de entrenos, sesiones HIIT y configuraciones. Esta acción no se puede deshacer.\n\n¿Estás completamente seguro?',
+    'settings.delete_done':'Todos los datos han sido borrados.',
+    'settings.reset_workouts':'🔄 Restablecer Entrenos al Predeterminado',
+    'settings.lang_section':'Idioma',
+    'settings.workout_types':{
+      'none':'— Sin entreno —',
+      'peito_tri':'💪 Pecho + Tríceps','costas_bi':'🔙 Espalda + Bíceps',
+      'cardio_core':'🏃 Cardio + Core','ombros_trap':'🎯 Hombros + Trapecio',
+      'pernas_glut':'🦵 Piernas + Glúteo','full_body':'🔥 Full Body',
+      'glut_post':'🍑 Glúteo + Posterior','cardio_abd':'🔥 Cardio + Abdomen',
+      'ombros_tri':'💜 Hombros + Tríceps','pernas_glut2':'🦵 Piernas + Glúteo 2',
+      'full_func':'🌟 Full Body Funcional','hiit_day':'⚡ Día de HIIT',
+      'cardio_leve':'🚶 Cardio Ligero','descanso':'😌 Descanso',
+    },
     'love.sub':'Cada día, siempre ❤️','love.close':'💕 ¡Empezar el entreno!',
     'photo.close':'Cerrar',
     'toast.fill_fields':'Completa todos los campos','toast.wrong_creds':'Correo o contraseña incorrectos',
@@ -1398,16 +1519,17 @@ function closeLoveModal(){document.getElementById('loveModal').classList.remove(
 // ================================================================
 function showNav(nav){
   currentNav=nav;
-  ['home','workouts','body','progress','hiit','profile','calendar'].forEach(v=>{
+  ['home','workouts','body','progress','hiit','profile','calendar','settings'].forEach(v=>{
     const el=document.getElementById(v+'View');if(el)el.style.display='none';
   });
   const target=document.getElementById(nav+'View');if(target)target.style.display='flex';
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.nav===nav));
   applyI18n();
-  // update calendar nav labels
   const calLbl=document.getElementById('calNavLabel');if(calLbl)calLbl.textContent=t('cal.nav');
   const calTitle=document.getElementById('calNavTitle');if(calTitle)calTitle.textContent=t('cal.title');
   const calSub=document.getElementById('calNavSub');if(calSub)calSub.textContent=t('cal.sub');
+  const setTitle=document.getElementById('settingsNavTitle');if(setTitle)setTitle.textContent=t('settings.title');
+  const setSub=document.getElementById('settingsNavSub');if(setSub)setSub.textContent=t('settings.sub');
   if(nav==='home')renderHome();
   else if(nav==='workouts')renderWorkouts();
   else if(nav==='body')renderBody();
@@ -1415,6 +1537,7 @@ function showNav(nav){
   else if(nav==='hiit')renderHiit();
   else if(nav==='profile')renderProfile();
   else if(nav==='calendar')renderCalendar();
+  else if(nav==='settings')renderSettings();
 }
 
 // ================================================================
@@ -2206,7 +2329,11 @@ function renderProfile(){
     <div class="profile-menu-item" onclick="showNav('body')"><span class="pmi-icon">📊</span><span class="pmi-label">${t('profile.register')}</span><span class="pmi-arrow">›</span></div>
     <div class="profile-menu-item" onclick="showNav('progress')"><span class="pmi-icon">📈</span><span class="pmi-label">${t('profile.progress')}</span><span class="pmi-arrow">›</span></div>
     <div class="profile-menu-item" onclick="showNav('hiit')"><span class="pmi-icon">⚡</span><span class="pmi-label">${t('profile.hiit')}</span><span class="pmi-arrow">›</span></div>
-    <div class="profile-menu-item" onclick="resetWorkouts()"><span class="pmi-icon">🔄</span><span class="pmi-label">${t('profile.reset')}</span><span class="pmi-arrow">›</span></div>
+    <div class="profile-menu-item" onclick="showNav('settings')" style="background:linear-gradient(135deg,rgba(0,212,255,.06),transparent)">
+      <span class="pmi-icon">⚙️</span>
+      <span class="pmi-label" style="background:var(--gradient-main);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">${t('profile.settings')}</span>
+      <span class="pmi-arrow" style="color:var(--accent)">›</span>
+    </div>
     <div class="divider"></div>
     <div class="profile-menu-item" onclick="doLogout()"><span class="pmi-icon pmi-danger">🚪</span><span class="pmi-label pmi-danger">${t('profile.logout')}</span><span class="pmi-arrow pmi-danger">›</span></div>
     <div style="height:20px"></div>`;
@@ -2214,6 +2341,216 @@ function renderProfile(){
 function resetWorkouts(){
   if(!confirm(t('profile.reset_confirm')))return;
   setUserData('customWorkouts',null);showToast(t('profile.reset_done'),'success');
+}
+
+// ================================================================
+//  SETTINGS
+// ================================================================
+
+// Map workout type keys to actual workout data objects
+const WORKOUT_TYPE_MAP = {
+  none:    { name:'—', emoji:'⬜', exercises:[] },
+  peito_tri:   { name:'PEITO + TRÍCEPS', emoji:'💪', exercises:['ex001','ex002','ex003','ex030','ex031'] },
+  costas_bi:   { name:'COSTAS + BÍCEPS', emoji:'🔙', exercises:['ex010','ex011','ex012','ex020','ex021'] },
+  cardio_core: { name:'CARDIO + CORE',   emoji:'🏃', exercises:['ex071','ex060','ex061','ex062','ex063'] },
+  ombros_trap: { name:'OMBROS + TRAPÉZIO',emoji:'🎯', exercises:['ex040','ex041','ex042','ex043','ex044'] },
+  pernas_glut: { name:'PERNAS + GLÚTEO', emoji:'🦵', exercises:['ex050','ex051','ex052','ex053','ex056'] },
+  full_body:   { name:'FULL BODY INTENSO',emoji:'🔥', exercises:['ex070','ex083','ex004','ex061','ex063'] },
+  glut_post:   { name:'GLÚTEO + POSTERIOR',emoji:'🍑',exercises:['ex052','ex051','ex055','ex054','ex056'] },
+  cardio_abd:  { name:'CARDIO + ABDÔMEN',emoji:'🔥', exercises:['ex071','ex060','ex061','ex063','ex064'] },
+  ombros_tri:  { name:'OMBROS + TRÍCEPS', emoji:'💜', exercises:['ex040','ex041','ex030','ex031','ex042'] },
+  pernas_glut2:{ name:'PERNAS + GLÚTEO 2',emoji:'🦵', exercises:['ex050','ex057','ex054','ex082','ex053'] },
+  full_func:   { name:'FULL BODY FUNCIONAL',emoji:'🌟',exercises:['ex083','ex070','ex004','ex066','ex065'] },
+  hiit_day:    { name:'DIA DE HIIT',      emoji:'⚡', exercises:['ex070','ex071','ex062','ex063','ex060'] },
+  cardio_leve: { name:'CARDIO LEVE',      emoji:'🚶', exercises:['ex072','ex071','ex080'] },
+  descanso:    { name:'DESCANSO ATIVO',   emoji:'😌', exercises:['ex072','ex080'] },
+};
+
+// Get saved day schedule config — array of 7 type keys indexed by weekday (0=Sun)
+function getDaySchedule(){
+  const saved = getUserData('daySchedule');
+  if(saved) return saved;
+  // Build default from current workout plan
+  const wos = getUserWorkouts();
+  const defaults = [];
+  for(let i=0;i<7;i++){
+    const wo = wos[i];
+    if(!wo || wo.name.includes('DESCANSO') || wo.name.includes('FLEX') || wo.name.includes('ACTIVO')){
+      defaults.push('descanso');
+    } else if(wo.name.includes('PEITO') || wo.name.includes('PECHO')){
+      defaults.push('peito_tri');
+    } else if(wo.name.includes('COSTAS') || wo.name.includes('ESPALDA')){
+      defaults.push('costas_bi');
+    } else if(wo.name.includes('CARDIO') && wo.name.includes('CORE')){
+      defaults.push('cardio_core');
+    } else if(wo.name.includes('OMBRO') || wo.name.includes('HOMBRO')){
+      defaults.push(wo.name.includes('TRI') ? 'ombros_tri' : 'ombros_trap');
+    } else if(wo.name.includes('PERNA') || wo.name.includes('PIERNA')){
+      defaults.push(wo.name.includes('2') ? 'pernas_glut2' : 'pernas_glut');
+    } else if(wo.name.includes('FULL') || wo.name.includes('FUNC')){
+      defaults.push(wo.name.includes('FUNC') ? 'full_func' : 'full_body');
+    } else if(wo.name.includes('GLÚT') || wo.name.includes('GLUT')){
+      defaults.push('glut_post');
+    } else {
+      defaults.push('descanso');
+    }
+  }
+  return defaults;
+}
+
+function applyDayScheduleToWorkouts(schedule){
+  const wos = {};
+  for(let i=0;i<7;i++){
+    const key = schedule[i] || 'descanso';
+    const tpl = WORKOUT_TYPE_MAP[key];
+    if(key === 'none'){
+      // No workout configured for this day
+      wos[i] = { name:'—', emoji:'⬜', exercises:[] };
+    } else {
+      wos[i] = { name: tpl.name, emoji: tpl.emoji, exercises: [...tpl.exercises] };
+    }
+  }
+  return wos;
+}
+
+function renderSettings(){
+  const body = document.getElementById('settingsBody');
+  const schedule = getDaySchedule();
+  const dayLong = t('days.long');
+  const wtypes = t('settings.workout_types');
+  const dotColors = [
+    '#ff6b6b','#ffa94d','#ffd43b','#69db7c','#4dabf7','#a78bfa','#f472b6'
+  ];
+
+  // Build workout type options HTML
+  const optionsHtml = Object.entries(WORKOUT_TYPE_MAP).map(([k,v])=>{
+    const label = wtypes[k] || v.emoji+' '+v.name;
+    return `<option value="${k}">${label}</option>`;
+  }).join('');
+
+  let html = `<div style="height:16px"></div>`;
+
+  // ── WEEKLY SCHEDULE ──
+  html += `<div class="settings-section">
+    <div class="settings-section-title">📅 ${t('settings.schedule_section')}</div>
+    <div class="settings-sub-header">${t('settings.schedule_sub')}</div>`;
+
+  for(let i=0;i<7;i++){
+    html += `<div class="day-sched-row">
+      <div class="day-sched-dot" style="background:${dotColors[i]}"></div>
+      <div class="day-sched-name">${dayLong[i]}</div>
+      <select class="day-sched-select ${schedule[i]==='descanso'||schedule[i]==='none'?'rest-day':''}"
+        id="sched_${i}"
+        onchange="onSchedChange(${i},this)">
+        ${Object.entries(WORKOUT_TYPE_MAP).map(([k,v])=>{
+          const label = wtypes[k] || v.emoji+' '+v.name;
+          return `<option value="${k}" ${schedule[i]===k?'selected':''}>${label}</option>`;
+        }).join('')}
+      </select>
+    </div>`;
+  }
+
+  html += `<div style="padding:14px 16px">
+    <button class="btn-primary" onclick="saveSchedule()" style="margin-top:0">
+      ${t('settings.save_schedule')}
+    </button>
+  </div></div>`;
+
+  // ── LANGUAGE ──
+  html += `<div class="settings-section">
+    <div class="settings-section-title">🌐 ${t('settings.lang_section')}</div>
+    <div class="settings-row">
+      <div class="settings-row-left">
+        <div class="settings-row-label">Português 🇧🇷</div>
+      </div>
+      <div class="settings-row-right">
+        <button class="edit-toggle-btn ${lang==='pt'?'active':''}" onclick="setLang('pt')">PT</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-left">
+        <div class="settings-row-label">Español 🇪🇸</div>
+      </div>
+      <div class="settings-row-right">
+        <button class="edit-toggle-btn ${lang==='es'?'active':''}" onclick="setLang('es')">ES</button>
+      </div>
+    </div>
+  </div>`;
+
+  // ── DATA MANAGEMENT ──
+  html += `<div class="settings-section">
+    <div class="settings-section-title">🗄️ ${t('settings.data_section')}</div>
+    <div style="padding:14px 16px 8px">
+      <button class="btn-secondary" onclick="resetWorkouts()" style="margin-top:0;text-align:center">
+        ${t('settings.reset_workouts')}
+      </button>
+    </div>
+    <div style="padding:8px 16px 16px">
+      <button class="btn-delete-all" onclick="deleteAllData()">
+        ${t('settings.delete_all')}
+      </button>
+    </div>
+    <div style="padding:0 16px 16px;font-size:12px;color:var(--text3);line-height:1.6">
+      ⚠️ ${lang==='pt'
+        ? 'O botão acima apaga permanentemente: registros de peso, fotos de progresso, histórico de exercícios, sessões HIIT, configurações de treino e dados do calendário. Seu login não será afetado.'
+        : 'El botón de arriba borra permanentemente: registros de peso, fotos de progreso, historial de ejercicios, sesiones HIIT, configuraciones de entreno y datos del calendario. Tu inicio de sesión no se verá afectado.'}
+    </div>
+  </div>`;
+
+  html += `<div style="height:20px"></div>`;
+  body.innerHTML = html;
+}
+
+function onSchedChange(dayIdx, selectEl){
+  const val = selectEl.value;
+  // Visual feedback — dim if rest/none
+  selectEl.className = `day-sched-select ${val==='descanso'||val==='none'?'rest-day':''}`;
+}
+
+function saveSchedule(){
+  const schedule = [];
+  for(let i=0;i<7;i++){
+    const sel = document.getElementById('sched_'+i);
+    schedule.push(sel ? sel.value : 'descanso');
+  }
+  setUserData('daySchedule', schedule);
+  // Apply to actual workout plan
+  const newWos = applyDayScheduleToWorkouts(schedule);
+  saveUserWorkouts(newWos);
+  showToast(t('settings.schedule_saved'), 'success');
+  // Re-render home to reflect changes immediately
+  editMode = {};
+}
+
+function deleteAllData(){
+  const confirmed = confirm(t('settings.delete_confirm'));
+  if(!confirmed) return;
+  // Double confirm for safety
+  const confirmed2 = confirm(lang==='pt'
+    ? '🔴 Última confirmação. Apagar TUDO mesmo?'
+    : '🔴 Última confirmación. ¿Borrar TODO de verdad?');
+  if(!confirmed2) return;
+
+  if(!currentUser) return;
+  // Wipe all user data keys
+  const all = JSON.parse(localStorage.getItem('hf_data') || '{}');
+  all[currentUser.email] = {};
+  localStorage.setItem('hf_data', JSON.stringify(all));
+
+  // Reset in-memory state
+  editMode = {};
+  calViewMonth = null;
+  calSelectedDay = null;
+  hiitState = {
+    running:false, phase:'ready', phaseTime:0, cycle:0, totalCycles:0,
+    runSecs:60, walkSecs:120, maxCycles:6,
+    runKmh:10, walkKmh:5, elapsedSecs:0, startTime:null
+  };
+  stopHiit();
+
+  showToast(t('settings.delete_done'), 'success');
+  // Go back to home
+  setTimeout(()=>showNav('home'), 500);
 }
 
 // ================================================================
